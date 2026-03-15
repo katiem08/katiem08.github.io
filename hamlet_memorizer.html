@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hamlet · Act II, Scene ii · Memorizer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
+
+:root {
+  --ink:#1a1208; --paper:#f5f0e8; --paper2:#ede7d9; --paper3:#e3dcc8;
+  --gold:#8b6914; --gold2:#c49a28; --red:#8b1a1a;
+  --faded:#9b8f78; --faded2:#c2b89e; --border:#c9bfa8;
+  --shadow:rgba(26,18,8,.14); --green:#2d5a27; --greenb:#e8f0e6;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --ink:#e8dfc8; --paper:#1a1710; --paper2:#211e15; --paper3:#2a261a;
+    --gold:#c49a28; --gold2:#e8c46a; --red:#c45a5a;
+    --faded:#6b6050; --faded2:#4a4338; --border:#3a3428;
+    --shadow:rgba(0,0,0,.4); --green:#7ab872; --greenb:#1a2818;
+  }
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--paper3);color:var(--ink);
+  font-family:'Crimson Pro',Georgia,serif;
+  min-height:100vh;display:flex;align-items:flex-start;
+  justify-content:center;padding:32px 16px 60px;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(139,105,20,.08) 0%,transparent 60%),
+    radial-gradient(ellipse at 80% 100%,rgba(139,105,20,.06) 0%,transparent 50%);
+}
+.stage{width:100%;max-width:700px;}
+.screen{display:none;}.screen.on{display:block;}
+
+/* MENU */
+#ms{animation:fi .5s ease;}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.playbill{
+  background:var(--paper2);border:1px solid var(--border);border-radius:2px;
+  padding:32px 36px 28px;
+  box-shadow:0 4px 24px var(--shadow),0 1px 3px var(--shadow);
+  position:relative;
+}
+.playbill::before{
+  content:'';position:absolute;inset:5px;
+  border:1px solid var(--border);border-radius:1px;
+  pointer-events:none;opacity:.35;
+}
+.eyebrow{
+  font-family:'IM Fell English SC',serif;font-size:.68rem;
+  letter-spacing:3px;color:var(--faded);
+  text-align:center;display:block;margin-bottom:10px;
+}
+.main-title{
+  font-family:'IM Fell English',serif;font-size:2.1rem;font-style:italic;
+  color:var(--ink);text-align:center;line-height:1.25;margin-bottom:4px;
+}
+.subtitle{
+  font-family:'IM Fell English SC',serif;font-size:.68rem;
+  letter-spacing:4px;color:var(--faded);text-align:center;
+}
+hr.rule{border:none;border-top:1px solid var(--border);margin:16px 0;}
+hr.dbl{border:none;border-top:3px double var(--border);margin:20px 0;}
+.slabel{
+  font-family:'IM Fell English SC',serif;font-size:.65rem;
+  letter-spacing:3px;color:var(--faded);display:block;margin-bottom:10px;
+}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px;}
+@media(max-width:520px){.mgrid{grid-template-columns:1fr;}}
+.mcard{
+  background:var(--paper);border:1.5px solid var(--border);border-radius:2px;
+  padding:15px 13px;cursor:pointer;text-align:left;transition:border-color .2s;
+  position:relative;
+}
+.mcard:hover{border-color:var(--gold);}
+.mcard.sel{border-color:var(--gold2);background:var(--paper2);}
+.mcard.sel::after{content:'✓';position:absolute;top:7px;right:9px;color:var(--gold2);font-size:11px;}
+.mcard .mn{
+  font-family:'IM Fell English SC',serif;font-size:.66rem;letter-spacing:2px;
+  color:var(--gold);display:block;margin-bottom:6px;
+}
+.mcard .md{font-size:.87rem;color:var(--faded);line-height:1.5;}
+.togrow{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--paper);border:1px solid var(--border);border-radius:2px;
+  padding:11px 15px;margin-bottom:9px;cursor:pointer;transition:border-color .2s;
+}
+.togrow:hover{border-color:var(--gold);}
+.togrow .tl{font-size:.92rem;color:var(--ink);}
+.togrow .td{font-size:.78rem;color:var(--faded);margin-top:1px;}
+.tog{
+  width:34px;height:19px;background:var(--border);border-radius:10px;
+  position:relative;transition:background .25s;flex-shrink:0;margin-left:14px;
+}
+.tog.on{background:var(--gold2);}
+.tog::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:15px;height:15px;background:var(--paper);
+  border-radius:50%;transition:transform .25s;
+}
+.tog.on::after{transform:translateX(15px);}
+.startbtn{
+  width:100%;background:var(--gold);color:var(--paper);border:none;
+  border-radius:2px;padding:14px;
+  font-family:'IM Fell English SC',serif;font-size:.83rem;letter-spacing:3px;
+  cursor:pointer;margin-top:16px;transition:background .2s;
+}
+.startbtn:hover{background:var(--gold2);}
+.keyref{font-size:.8rem;color:var(--faded);line-height:1.9;}
+kbd{
+  font-size:.72rem;border:1px solid var(--border);padding:1px 5px;
+  border-radius:2px;background:var(--paper);font-family:monospace;
+}
+
+/* GAME */
+#game{animation:fi .35s ease;}
+.ghead{
+  background:var(--paper2);border:1px solid var(--border);
+  border-radius:2px 2px 0 0;
+  padding:10px 18px 9px;display:flex;align-items:center;gap:12px;
+}
+.gstat{
+  font-family:'IM Fell English SC',serif;font-size:.63rem;
+  letter-spacing:2px;color:var(--faded);white-space:nowrap;
+}
+.gstat span{color:var(--ink);font-size:.76rem;}
+.gstat.err span{color:var(--red);}
+.gstat.modetag span{color:var(--gold);font-size:.63rem;letter-spacing:2px;font-family:'IM Fell English SC',serif;}
+.gbar-w{flex:1;height:3px;background:var(--paper3);border-radius:2px;overflow:hidden;}
+.gbar{height:100%;background:var(--gold);border-radius:2px;transition:width .5s ease;}
+.gnotice{
+  background:var(--paper3);border:1px solid var(--border);border-top:none;
+  padding:6px 20px;font-size:.78rem;color:var(--faded);
+  display:none;align-items:center;gap:8px;
+}
+.gnotice.on{display:flex;}
+.gnotice.bad{color:var(--red);border-color:rgba(139,26,26,.35);}
+.gnotice.mine{color:var(--red);border-color:var(--red);font-weight:500;}
+
+/* TEXT DISPLAY */
+.gtxt{
+  background:var(--paper);border:1px solid var(--border);border-top:none;
+  padding:26px 32px 18px;
+  max-height:340px;overflow-y:auto;
+  font-family:'Crimson Pro',serif;font-size:1.16rem;line-height:3;
+  color:var(--ink);
+}
+.gtxt::-webkit-scrollbar{width:4px;}
+.gtxt::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.ln{display:block;}
+
+.wd{display:inline;}
+.wd.done{color:var(--ink);}
+.wd.scaffold{color:var(--faded);font-style:italic;letter-spacing:1px;}
+.wd.blank{color:transparent;user-select:none;letter-spacing:1px;border-bottom:1px solid var(--faded2);}
+.wd.future{color:var(--faded2);opacity:.4;}
+.wd.cur{
+  display:inline-block;
+  background:var(--gold2);color:var(--paper);
+  padding:0 5px;border-radius:2px;font-weight:500;
+  animation:blk 1.3s ease-in-out infinite;
+  letter-spacing:2px;line-height:1.4;vertical-align:baseline;
+}
+@keyframes blk{0%,100%{opacity:1}50%{opacity:.45}}
+.wd.wrong{
+  display:inline-block;
+  background:rgba(139,26,26,.1);color:var(--red);
+  border-bottom:1.5px solid var(--red);
+  padding:0 3px;border-radius:2px 2px 0 0;
+  font-style:italic;line-height:1.4;vertical-align:baseline;
+}
+.punct{color:var(--faded);}
+.punct.done{color:var(--ink);}
+
+/* INPUT */
+.ginput{
+  background:var(--paper2);border:1px solid var(--border);border-top:none;
+  border-radius:0 0 2px 2px;padding:9px 13px 13px;
+  display:flex;gap:8px;align-items:center;
+}
+.hintlbl{
+  font-family:'IM Fell English SC',serif;font-size:.63rem;
+  letter-spacing:2px;color:var(--gold2);white-space:nowrap;
+  min-width:88px;min-height:16px;
+}
+#wi{
+  flex:1;background:var(--paper);border:1px solid var(--border);
+  border-radius:1px;padding:10px 13px;color:var(--ink);
+  font-family:'Crimson Pro',serif;font-size:1.05rem;
+  outline:none;transition:border-color .2s;caret-color:var(--gold2);
+}
+#wi:focus{border-color:var(--gold);}
+#wi::placeholder{color:var(--faded2);font-style:italic;}
+#wi.ok{border-color:var(--green);background:var(--greenb);}
+#wi.er{border-color:var(--red);background:rgba(139,26,26,.06);}
+.ibtn{
+  background:none;border:1px solid var(--border);border-radius:1px;
+  color:var(--faded);padding:9px 12px;
+  font-family:'IM Fell English SC',serif;font-size:.63rem;letter-spacing:2px;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.ibtn:hover{border-color:var(--gold);color:var(--gold);}
+
+/* COMPLETE */
+#cp{animation:fi .5s ease;text-align:center;}
+.cpcard{
+  background:var(--paper2);border:1px solid var(--border);border-radius:2px;
+  padding:40px 40px 36px;
+  box-shadow:0 4px 24px var(--shadow);position:relative;
+}
+.cpcard::before{
+  content:'';position:absolute;inset:6px;
+  border:1px solid var(--border);border-radius:1px;
+  pointer-events:none;opacity:.32;
+}
+.orn{
+  text-align:center;font-family:'IM Fell English',serif;
+  font-size:1.3rem;color:var(--gold);letter-spacing:6px;opacity:.65;margin-bottom:6px;
+}
+.cv{
+  font-family:'IM Fell English',serif;font-style:italic;
+  font-size:1.6rem;color:var(--ink);line-height:1.35;margin-bottom:5px;
+}
+.cs{
+  font-family:'IM Fell English SC',serif;font-size:.63rem;
+  letter-spacing:3px;color:var(--faded);margin-bottom:28px;
+}
+.score-row{display:flex;gap:2px;justify-content:center;margin-bottom:24px;}
+.sc{background:var(--paper);border:1px solid var(--border);padding:15px 20px;min-width:96px;}
+.sc .sv{display:block;font-family:'IM Fell English',serif;font-size:1.9rem;color:var(--gold2);margin-bottom:2px;line-height:1;}
+.sc .sl{font-family:'IM Fell English SC',serif;font-size:.6rem;letter-spacing:2px;color:var(--faded);}
+.acc-bar{height:4px;background:var(--paper3);border-radius:2px;overflow:hidden;margin-bottom:28px;}
+.acc-fill{height:100%;border-radius:2px;transition:width 1s ease .3s;}
+.cpbtns{display:flex;gap:10px;justify-content:center;}
+.cpbtn{
+  background:none;border:1px solid var(--border);border-radius:1px;
+  padding:11px 22px;
+  font-family:'IM Fell English SC',serif;font-size:.68rem;letter-spacing:2px;
+  cursor:pointer;color:var(--ink);transition:all .2s;
+}
+.cpbtn:hover{border-color:var(--gold);color:var(--gold);}
+.cpbtn.pri{background:var(--gold);color:var(--paper);border-color:var(--gold);}
+.cpbtn.pri:hover{background:var(--gold2);border-color:var(--gold2);}
+
+@media(max-width:480px){
+  .playbill{padding:22px 18px 20px;}
+  .gtxt{padding:18px 16px 12px;font-size:1.04rem;}
+  .main-title{font-size:1.7rem;}
+  .sc{padding:12px 14px;min-width:80px;}
+  .cpcard{padding:28px 22px 28px;}
+}
+</style>
+</head>
+<body>
+<div class="stage">
+
+<!-- MENU -->
+<div id="ms" class="screen on">
+<div class="playbill">
+  <span class="eyebrow">The Tragedy of Hamlet, Prince of Denmark</span>
+  <h1 class="main-title">O, what a rogue and<br>peasant slave am I!</h1>
+  <p class="subtitle">Act II &middot; Scene ii &middot; Memorization Tool</p>
+  <hr class="dbl">
+
+  <span class="slabel">Choose your mode</span>
+  <div class="mgrid">
+    <div class="mcard sel" id="mc-lineby" onclick="setMode('lineby')">
+      <span class="mn">Line by Line</span>
+      <span class="md">One line at a time &mdash; current line visible, rest hidden</span>
+    </div>
+    <div class="mcard" id="mc-scaffold" onclick="setMode('scaffold')">
+      <span class="mn">First Letter</span>
+      <span class="md">Every word shown as its first letter &mdash; fill in the rest</span>
+    </div>
+    <div class="mcard" id="mc-blackout" onclick="setMode('blackout')">
+      <span class="mn">Blackout</span>
+      <span class="md">Words blanked, punctuation pre-filled &mdash; pure recall</span>
+    </div>
+  </div>
+
+  <span class="slabel" style="margin-top:14px">Options</span>
+  <div class="togrow" onclick="toggleMine()">
+    <div>
+      <div class="tl">Minefield mode</div>
+      <div class="td">One wrong word sends you back to the beginning</div>
+    </div>
+    <div class="tog" id="tog-mine"></div>
+  </div>
+  <div class="togrow" onclick="toggleApost()">
+    <div>
+      <div class="tl">Require apostrophes</div>
+      <div class="td">e.g. <em>wann'd</em> required; <em>wannd</em> marked wrong</div>
+    </div>
+    <div class="tog" id="tog-apost"></div>
+  </div>
+
+  <hr class="rule">
+  <p class="keyref">
+    <kbd>Tab</kbd> first-letter hint &nbsp;&middot;&nbsp;
+    <kbd>Enter</kbd> or <kbd>Space</kbd> to submit &nbsp;&middot;&nbsp;
+    &minus;1 point per error
+  </p>
+  <button class="startbtn" onclick="startGame()">&mdash; Enter the Stage &mdash;</button>
+</div>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <div class="ghead">
+    <div class="gstat modetag">Mode&nbsp;<span id="modetag">&mdash;</span></div>
+    <div class="gstat">Words&nbsp;<span id="pt">0/0</span></div>
+    <div class="gbar-w"><div class="gbar" id="pb" style="width:0"></div></div>
+    <div class="gstat err">Errors&nbsp;<span id="et">0</span></div>
+    <button class="ibtn" onclick="goMenu()" style="margin-left:auto;padding:5px 9px;font-size:.58rem">&larr; Exit</button>
+  </div>
+  <div class="gnotice" id="gnotice"></div>
+  <div class="gtxt" id="tbox"></div>
+  <div class="ginput">
+    <div class="hintlbl" id="hintlbl"></div>
+    <input type="text" id="wi" placeholder="type the next word&hellip;"
+      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <button class="ibtn" onclick="doHint()">Hint</button>
+    <button class="ibtn" style="color:var(--gold);border-color:var(--gold)" onclick="doSubmit()">&#8629;</button>
+  </div>
+</div>
+
+<!-- COMPLETE -->
+<div id="cp" class="screen">
+<div class="cpcard">
+  <div class="orn">&mdash; &#10022; &mdash;</div>
+  <div class="cv" id="cpv"></div>
+  <div class="cs" id="cps"></div>
+  <hr class="rule">
+  <div class="score-row">
+    <div class="sc"><span class="sv" id="s-cor">&mdash;</span><span class="sl">Correct</span></div>
+    <div class="sc"><span class="sv" id="s-err" style="color:var(--red)">&mdash;</span><span class="sl">Errors</span></div>
+    <div class="sc"><span class="sv" id="s-pct">&mdash;</span><span class="sl">Accuracy</span></div>
+  </div>
+  <div class="acc-bar"><div class="acc-fill" id="af" style="width:0"></div></div>
+  <div class="cpbtns">
+    <button class="cpbtn" onclick="goMenu()">Change Mode</button>
+    <button class="cpbtn pri" onclick="replay()">Play Again</button>
+  </div>
+</div>
+</div>
+
+</div>
+<script>
+const LINES_RAW = [
+  "Now I am alone.",
+  "O, what a rogue and peasant slave am I!",
+  "Is it not monstrous that this player here,",
+  "But in a fiction, in a dream of passion,",
+  "Could force his soul so to his own conceit",
+  "That from her working all his visage wann'd,",
+  "Tears in his eyes, distraction in's aspect,",
+  "A broken voice, and his whole function suiting",
+  "With forms to his conceit? And all for nothing! For Hecuba!",
+  "What's Hecuba to him, or he to Hecuba,",
+  "That he should weep for her? What would he do,",
+  "Had he the motive and the cue for passion",
+  "That I have, he would drown the stage with tears",
+  "And cleave the general ear with horrid speech,",
+  "Make mad the guilty and appall the free,",
+  "Confound the ignorant, and amaze indeed",
+  "The very faculties of eyes and ears. Yet I,",
+  "A dull and muddy-mettled rascal, peak,",
+  "Like John-a-dreams, unpregnant of my cause,",
+  "And can say nothing; no, not for a king,",
+  "Upon whose property and most dear life",
+  "A damn'd defeat was made. Am I a coward?",
+  "Who calls me villain? Breaks my pate across?",
+  "Plucks off my beard, and blows it in my face?",
+  "Tweaks me by the nose? Gives me the lie i' the throat,",
+  "As deep as to the lungs? Who does me this?",
+  "Ha!' Swounds, I should take it: for it cannot be",
+  "But I am pigeon-liver'd and lack gall",
+  "To make oppression bitter, or ere this",
+  "I should have fatted all the region kites",
+  "With this slave's offal: bloody, bawdy villain!",
+  "Remorseless, treacherous, lecherous, kindless villain!",
+  "O, vengeance!",
+  "Why, what an ass am I! This is most brave,",
+  "That I, the son of a dear father murder'd,",
+  "Prompted to my revenge by heaven and hell,",
+  "Must, like a whore, unpack my heart with words,",
+  "And fall a-cursing, like a very drab, a scullion!",
+  "Fie upon't! Foh!"
+];
+
+const VERDICTS = [
+  { max:20,  q:"You are a tedious old fool.",                       src:"Act II, Scene ii" },
+  { max:40,  q:"I am but mad north-north-west.",                    src:"Act II, Scene ii" },
+  { max:60,  q:"We know what we are, but know not what we may be.", src:"Act IV, Scene v"  },
+  { max:80,  q:"Though this be madness, yet there is method in't.", src:"Act II, Scene ii" },
+  { max:90,  q:"To be, or not to be — that is the question.",       src:"Act III, Scene i" },
+  { max:99,  q:"To thine own self be true.",                        src:"Act I, Scene iii" },
+  { max:100, q:"The play's the thing!",                             src:"Act II, Scene ii" },
+];
+
+function tokenizeLine(line) {
+  const toks = [];
+  const re = /([A-Za-z'\u2019\-]+)|([^A-Za-z'\u2019\-\s]+)/g;
+  let m;
+  while ((m = re.exec(line)) !== null) {
+    if (m[1]) {
+      const raw = m[1];
+      const stripped = raw.replace(/^['\u2019\-]+|['\u2019\-]+$/g,'');
+      const norm = stripped.toLowerCase().replace(/[\u2018\u2019]/g,"'");
+      const first = raw.match(/[A-Za-z]/)?.[0]?.toLowerCase() || raw[0];
+      toks.push({ type:'word', text:raw, norm, first });
+    } else if (m[2]) {
+      toks.push({ type:'punct', text:m[2] });
+    }
+  }
+  return toks;
+}
+
+const LINES_TOKS = LINES_RAW.map(tokenizeLine);
+const WORDS = [];
+LINES_TOKS.forEach((line, li) => {
+  line.forEach(tok => { if (tok.type==='word') WORDS.push({...tok, li}); });
+});
+
+let gmode='lineby', minefield=false, requireApost=false;
+let idx=0, errors=0, locked=false, hinted=false;
+
+function setMode(m) {
+  gmode=m;
+  ['lineby','scaffold','blackout'].forEach(id =>
+    document.getElementById('mc-'+id).classList.toggle('sel', id===m));
+}
+function toggleMine() {
+  minefield=!minefield;
+  document.getElementById('tog-mine').classList.toggle('on',minefield);
+}
+function toggleApost() {
+  requireApost=!requireApost;
+  document.getElementById('tog-apost').classList.toggle('on',requireApost);
+}
+function show(id) {
+  ['ms','game','cp'].forEach(s =>
+    document.getElementById(s).classList.toggle('on',s===id));
+}
+function goMenu() { show('ms'); }
+
+function startGame() {
+  idx=0; errors=0; locked=false; hinted=false;
+  document.getElementById('wi').value='';
+  document.getElementById('hintlbl').textContent='';
+  notice('','');
+  const tag={lineby:'Line by Line',scaffold:'First Letter',blackout:'Blackout'};
+  document.getElementById('modetag').textContent=tag[gmode];
+  show('game'); stats(); render();
+  setTimeout(()=>document.getElementById('wi').focus(),50);
+}
+function replay() { startGame(); }
+
+function stats() {
+  const tot=WORDS.length;
+  document.getElementById('pt').textContent=idx+'/'+tot;
+  document.getElementById('et').textContent=errors;
+  document.getElementById('pb').style.width=(idx/tot*100)+'%';
+}
+
+function normInput(inp, tok) {
+  let s=inp.trim().toLowerCase().replace(/[\u2018\u2019]/g,"'");
+  let core=tok.norm;
+  if (!requireApost) { s=s.replace(/'/g,''); core=core.replace(/'/g,''); }
+  return s===core;
+}
+
+function scaffoldDisplay(tok) {
+  const letters = tok.text.replace(/[^A-Za-z]/g,'');
+  if (!letters.length) return tok.text;
+  const first = tok.text.match(/[A-Za-z]/)?.[0] || tok.text[0];
+  const dashes = '\u2013'.repeat(Math.max(0, letters.length-1));
+  const before = tok.text.match(/^[^A-Za-z]*/)?.[0]||'';
+  const after  = tok.text.match(/[^A-Za-z]*$/)?.[0]||'';
+  return before + first + dashes + after;
+}
+
+function render() {
+  const tb=document.getElementById('tbox');
+  const curLine = idx<WORDS.length ? WORDS[idx].li : LINES_TOKS.length;
+  let wi=0;
+
+  const html = LINES_TOKS.map((lineToks, li) => {
+    const parts=[];
+    lineToks.forEach((tok, ti) => {
+      if (ti>0 && tok.type==='word') parts.push(' ');
+      else if (ti>0 && tok.type==='punct') {} // no space before punct
+
+      if (tok.type==='punct') {
+        parts.push('<span class="punct">'+esc(tok.text)+'</span>');
+        return;
+      }
+      const w=wi++;
+      const dashes='\u2014'.repeat(Math.max(3,tok.norm.replace(/'/g,'').length));
+
+      if (w<idx) {
+        parts.push('<span class="wd done">'+esc(tok.text)+'</span>');
+      } else if (w===idx) {
+        parts.push('<span class="wd cur" id="cw">'+dashes+'</span>');
+      } else {
+        if (gmode==='lineby') {
+          if (li===curLine) parts.push('<span class="wd future">'+esc(tok.text)+'</span>');
+          else parts.push('<span class="wd blank">'+dashes+'</span>');
+        } else if (gmode==='scaffold') {
+          parts.push('<span class="wd scaffold">'+esc(scaffoldDisplay(tok))+'</span>');
+        } else {
+          parts.push('<span class="wd blank">'+dashes+'</span>');
+        }
+      }
+    });
+    return '<span class="ln">'+parts.join('')+'</span>';
+  }).join('');
+
+  tb.innerHTML=html;
+  requestAnimationFrame(()=>{
+    const cw=document.getElementById('cw');
+    if (cw) cw.scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function doSubmit() {
+  if (locked) return;
+  const inp=document.getElementById('wi').value.trim();
+  if (!inp) return;
+  document.getElementById('wi').value='';
+  document.getElementById('hintlbl').textContent='';
+  hinted=false;
+  const tok=WORDS[idx];
+
+  if (normInput(inp,tok)) {
+    flash('ok'); notice('',''); idx++;
+    if (idx>=WORDS.length) return finish();
+    stats(); render();
+  } else {
+    errors++; flash('er'); stats();
+    locked=true;
+    const cw=document.getElementById('cw');
+    if (cw) { cw.className='wd wrong'; cw.textContent=tok.text; }
+
+    if (minefield) {
+      notice('mine','✕ "'+tok.text+'" — starting over…');
+      setTimeout(()=>{
+        idx=0; errors=0; locked=false;
+        document.getElementById('wi').value='';
+        notice('',''); stats(); render();
+        document.getElementById('wi').focus();
+      },2000);
+    } else {
+      notice('bad','✕ "'+tok.text+'"');
+      setTimeout(()=>{
+        locked=false; idx++; notice('','');
+        if (idx>=WORDS.length) return finish();
+        stats(); render();
+        document.getElementById('wi').focus();
+      },1500);
+    }
+  }
+}
+
+function doHint() {
+  if (locked||hinted||idx>=WORDS.length) return;
+  const tok=WORDS[idx];
+  document.getElementById('hintlbl').textContent=
+    'First: "' + (tok.text.match(/[A-Za-z]/)?.[0]?.toUpperCase()||'?') + '"';
+  hinted=true;
+  document.getElementById('wi').focus();
+}
+
+function notice(type,msg) {
+  const el=document.getElementById('gnotice');
+  el.textContent=msg;
+  el.className='gnotice'+(msg?' on':'')+(type==='mine'?' mine':type==='bad'?' bad':'');
+}
+
+function flash(cls) {
+  const el=document.getElementById('wi');
+  el.classList.add(cls);
+  setTimeout(()=>el.classList.remove(cls),360);
+}
+
+function finish() {
+  const tot=WORDS.length, correct=tot-errors;
+  const pct=Math.round(correct/tot*100);
+  const v=VERDICTS.find(v=>pct<=v.max)||VERDICTS[VERDICTS.length-1];
+  document.getElementById('cpv').textContent='"'+v.q+'"';
+  document.getElementById('cps').textContent='— Hamlet, '+v.src;
+  document.getElementById('s-cor').textContent=correct;
+  document.getElementById('s-err').textContent=errors;
+  document.getElementById('s-pct').textContent=pct+'%';
+  const fill=document.getElementById('af');
+  fill.style.width='0';
+  fill.style.background=pct>=90?'#c49a28':pct>=60?'#8b6914':'#8b1a1a';
+  show('cp');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ fill.style.width=pct+'%'; }));
+}
+
+document.addEventListener('keydown',e=>{
+  if (!document.getElementById('game').classList.contains('on')) return;
+  if (e.key==='Tab')   { e.preventDefault(); doHint(); }
+  if (e.key==='Enter') { e.preventDefault(); doSubmit(); }
+  if (e.key===' ') {
+    if (document.getElementById('wi').value.trim()) { e.preventDefault(); doSubmit(); }
+  }
+});
+
+show('ms');
+</script>
+</body>
+</html>
